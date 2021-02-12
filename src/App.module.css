@@ -19,3 +19,14 @@
   min-height: 3rem;
   padding: var(--padding);
 }
+
+.story h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.story h3 a {
+  font-weight: normal;
+  text-decoration: none;
+  color: black;
+}
