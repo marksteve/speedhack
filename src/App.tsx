@@ -1,5 +1,5 @@
+import { formatDuration, intervalToDuration } from 'date-fns';
 import { forwardRef, Suspense, useEffect, useMemo, useRef } from 'react';
-import { intervalToDuration, formatDuration } from 'date-fns';
 import createStore from 'zustand';
 import * as api from './api';
 import styles from './App.module.css';
@@ -10,8 +10,12 @@ function App() {
       <header className={styles.header}>
         <h1>Hacker News</h1>
       </header>
-      <Suspense fallback={'Loading...'}>
-        <NewStories />
+      <Suspense
+        fallback={
+          <div className={styles.info}>Fetching new stories&hellip;</div>
+        }
+      >
+        <Stories endpoint="newstories" />
       </Suspense>
     </div>
   );
@@ -25,8 +29,12 @@ const useVisible = createStore<VisibleStore>((set) => ({
   markVisible: (id: number) => set({ [id]: true }),
 }));
 
-function NewStories() {
-  const stories = api.newStories.read();
+type StoriesProps = {
+  endpoint: string;
+};
+
+function Stories(props: StoriesProps) {
+  const stories = api.stories.read(props.endpoint);
 
   const targets = useRef<HTMLDivElement[]>([]);
   const markVisible = useVisible((state) => state.markVisible);
