@@ -22,7 +22,7 @@ type VisibleStore = Record<number, boolean> & {
 };
 
 const useVisible = createStore<VisibleStore>((set) => ({
-  markVisible: (id: number) => set((state) => ({ [id]: true })),
+  markVisible: (id: number) => set({ [id]: true }),
 }));
 
 function NewStories() {
