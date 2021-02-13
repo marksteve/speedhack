@@ -1,4 +1,5 @@
 import { forwardRef, Suspense, useEffect, useMemo, useRef } from 'react';
+import { intervalToDuration, formatDuration } from 'date-fns';
 import createStore from 'zustand';
 import * as api from './api';
 import styles from './App.module.css';
@@ -52,11 +53,11 @@ function NewStories() {
   }, [observer]);
 
   return (
-    <>
+    <div className={styles.stories}>
       {stories.map((id) => (
         <Story key={id} id={id} ref={(el) => targets.current.push(el!)} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -69,7 +70,7 @@ const Story = forwardRef<HTMLDivElement, StoryProps>((props, ref) => {
   const content = isVisible ? <StoryContent id={props.id} /> : null;
   return (
     <div ref={ref} className={styles.story} id={`${props.id}`}>
-      <Suspense fallback={'Loading...'}>{content}</Suspense>
+      <Suspense fallback={<StoryPlaceholder />}>{content}</Suspense>
     </div>
   );
 });
@@ -78,8 +79,38 @@ function StoryContent(props: StoryProps) {
   const story = api.item.read(props.id);
   return (
     <>
-      <h3><a href={story.url}>{story.title}</a></h3>
+      <h3>
+        <a href={story.url}>{story.title}</a>
+      </h3>
+      <div className={styles.storyMeta}>
+        by {story.by}{' '}
+        {formatDuration(
+          intervalToDuration({
+            start: new Date(),
+            end: new Date(story.time * 1000),
+          })
+        )}
+      </div>
     </>
+  );
+}
+
+function StoryPlaceholder() {
+  return (
+    <svg
+      className={styles.storyPlaceholder}
+      height="2.5rem"
+      fill="currentColor"
+      opacity="0.5"
+    >
+      <rect width={`${Math.random() * 20 + 80}%`} height="1rem" rx="3" />
+      <rect
+        width={`${Math.random() * 20 + 30}%`}
+        height="0.8rem"
+        y="1.5rem"
+        rx="3"
+      />
+    </svg>
   );
 }
 

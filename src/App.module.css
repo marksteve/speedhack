@@ -15,9 +15,23 @@
   margin: 0;
 }
 
+.stories {
+  padding: calc(var(--padding) / 2) 0;
+}
+
+.storyPlaceholder {
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .storyPlaceholder {
+    width: 50%;
+  }
+}
+
 .story {
-  min-height: 3rem;
-  padding: var(--padding);
+  min-height: 3.5rem;
+  padding: calc(var(--padding) / 2) var(--padding);
 }
 
 .story h3 {
@@ -29,4 +43,9 @@
   font-weight: normal;
   text-decoration: none;
   color: black;
+}
+
+.storyMeta {
+  font-size: 0.8rem;
+  line-height: 1rem;
 }
