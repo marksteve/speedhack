@@ -1,4 +1,4 @@
-import { formatDuration, intervalToDuration } from 'date-fns';
+import { format as formatDuration } from 'timeago.js';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import createStore from 'zustand';
 import * as api from './api';
@@ -96,6 +96,7 @@ type StoryContentProps = {
 function StoryContent(props: StoryContentProps) {
   const story = api.item.read(props.id);
   const url = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
+  const datetime = new Date(story.time * 1000);
   return (
     <>
       <h3>
@@ -103,12 +104,9 @@ function StoryContent(props: StoryContentProps) {
       </h3>
       <div className={styles.storyMeta}>
         by {story.by}{' '}
-        {formatDuration(
-          intervalToDuration({
-            start: new Date(),
-            end: new Date(story.time * 1000),
-          })
-        )}
+        <time dateTime={datetime.toISOString()}>
+          {formatDuration(datetime)}
+        </time>
       </div>
     </>
   );
