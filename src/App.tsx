@@ -10,7 +10,7 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <h1>Hacker News</h1>
+        <h1>Speedhack</h1>
       </header>
       <Stories endpoint="newstories" />
     </div>
