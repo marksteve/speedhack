@@ -1,5 +1,11 @@
 import { formatDuration, intervalToDuration } from 'date-fns';
-import { forwardRef, Suspense, useEffect, useMemo, useRef } from 'react';
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import createStore from 'zustand';
 import * as api from './api';
 import styles from './App.module.css';
@@ -34,9 +40,9 @@ type StoriesProps = {
 };
 
 function Stories(props: StoriesProps) {
+  const [, setLatestId] = useState(0);
   const stories = api.stories.read(props.endpoint);
 
-  const targets = useRef<HTMLDivElement[]>([]);
   const markVisible = useVisible((state) => state.markVisible);
 
   const observer = useMemo<IntersectionObserver>(() => {
@@ -55,15 +61,13 @@ function Stories(props: StoriesProps) {
   }, [markVisible]);
 
   useEffect(() => {
-    targets.current.forEach((target) => {
-      observer.observe(target);
-    });
-  }, [observer]);
+    api.updateStories(props.endpoint, stories, setLatestId);
+  }, [props.endpoint, stories, setLatestId]);
 
   return (
     <div className={styles.stories}>
       {stories.map((id) => (
-        <Story key={id} id={id} ref={(el) => targets.current.push(el!)} />
+        <Story key={id} id={id} observer={observer} />
       ))}
     </div>
   );
@@ -71,24 +75,44 @@ function Stories(props: StoriesProps) {
 
 type StoryProps = {
   id: api.Story['id'];
+  observer: IntersectionObserver;
 };
 
-const Story = forwardRef<HTMLDivElement, StoryProps>((props, ref) => {
+function Story(props: StoryProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const isVisible = useVisible((state) => state[props.id]);
   const content = isVisible ? <StoryContent id={props.id} /> : null;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (el) {
+      props.observer.observe(el);
+    }
+    return () => {
+      if (el) {
+        props.observer.unobserve(el);
+      }
+    };
+  }, [props.observer, ref]);
+
   return (
     <div ref={ref} className={styles.story} id={`${props.id}`}>
       <Suspense fallback={<StoryPlaceholder />}>{content}</Suspense>
     </div>
   );
-});
+}
 
-function StoryContent(props: StoryProps) {
+type StoryContentProps = {
+  id: api.Story['id'];
+};
+
+function StoryContent(props: StoryContentProps) {
   const story = api.item.read(props.id);
+  const url = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
   return (
     <>
       <h3>
-        <a href={story.url}>{story.title}</a>
+        <a href={url}>{story.title}</a>
       </h3>
       <div className={styles.storyMeta}>
         by {story.by}{' '}
