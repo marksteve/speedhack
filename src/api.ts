@@ -41,7 +41,7 @@ export const item = createAsset<Item, [number]>(async (id) => {
 export function useStories(endpoint: string) {
   const url = `${apiHost}/${endpoint}.json`;
 
-  const [data, setData] = useState<Story['id'][]>([]);
+  const [ids, setIds] = useState<Story['id'][]>([]);
 
   useEffect(() => {
     getCachedStories();
@@ -49,7 +49,7 @@ export function useStories(endpoint: string) {
     async function getCachedStories() {
       const cached = await localforage.getItem<Story['id'][]>(url);
       if (cached) {
-        setData(cached);
+        setIds(cached);
         updateStories(cached);
       } else {
         fetchStories();
@@ -59,7 +59,7 @@ export function useStories(endpoint: string) {
     async function fetchStories() {
       const res = await fetch(url);
       const fetched = await res.json();
-      setData(fetched);
+      setIds(fetched);
       localforage.setItem(url, fetched);
     }
 
@@ -77,11 +77,11 @@ export function useStories(endpoint: string) {
 
       if (newCount > 0) {
         const updated = Array.from(updatedSet).slice(0, maxStories);
-        setData(updated);
+        setIds(updated);
         localforage.setItem(url, updated);
       }
     }
-  }, [url, setData]);
+  }, [url, setIds]);
 
-  return data;
+  return ids;
 }
