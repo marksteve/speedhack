@@ -42,14 +42,18 @@ export function useStories(endpoint: string) {
   const url = `${apiHost}/${endpoint}.json`;
 
   const [ids, setIds] = useState<Story['id'][]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error>();
 
   useEffect(() => {
+    setIsLoading(true);
     getCachedStories();
 
     async function getCachedStories() {
       const cached = await localforage.getItem<Story['id'][]>(url);
       if (cached) {
         setIds(cached);
+        setIsLoading(false);
         updateStories(cached);
       } else {
         fetchStories();
@@ -57,10 +61,16 @@ export function useStories(endpoint: string) {
     }
 
     async function fetchStories() {
-      const res = await fetch(url);
-      const fetched = await res.json();
-      setIds(fetched);
-      localforage.setItem(url, fetched);
+      try {
+        const res = await fetch(url);
+        const fetched = await res.json();
+        setIds(fetched);
+        localforage.setItem(url, fetched);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     async function updateStories(cached: Story['id'][]) {
@@ -78,10 +88,11 @@ export function useStories(endpoint: string) {
       if (newCount > 0) {
         const updated = Array.from(updatedSet).slice(0, maxStories);
         setIds(updated);
+        setIsLoading(false);
         localforage.setItem(url, updated);
       }
     }
   }, [url, setIds]);
 
-  return ids;
+  return [ids, isLoading, error] as const;
 }

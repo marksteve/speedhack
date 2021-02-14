@@ -22,8 +22,22 @@
   align-items: center;
 }
 
+.info span {
+  margin-left: 0.5rem;
+}
+
 .stories {
   padding: calc(var(--padding) / 2) 0;
+}
+
+.storyError {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.storyError span {
+  margin-left: 0.5rem;
 }
 
 .storyPlaceholder {

@@ -1,5 +1,7 @@
-import { format as formatDuration } from 'timeago.js';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { AlertCircle, CloudOff, Loader } from 'react-feather';
+import { format as formatDuration } from 'timeago.js';
 import createStore from 'zustand';
 import * as api from './api';
 import styles from './App.module.css';
@@ -28,7 +30,7 @@ type StoriesProps = {
 };
 
 function Stories(props: StoriesProps) {
-  const stories = api.useStories(props.endpoint);
+  const [stories, isLoading, error] = api.useStories(props.endpoint);
 
   const markVisible = useVisible((state) => state.markVisible);
 
@@ -47,8 +49,22 @@ function Stories(props: StoriesProps) {
     );
   }, [markVisible]);
 
-  if (!stories.length) {
-    return <div className={styles.info}>Fetching new stories&hellip;</div>;
+  if (isLoading) {
+    return (
+      <div className={styles.info}>
+        <Loader />
+        <span>Fetching new stories&hellip;</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.info}>
+        <AlertCircle />
+        <span>Failed to fetch new stories</span>
+      </div>
+    );
   }
 
   return (
@@ -84,7 +100,9 @@ function Story(props: StoryProps) {
 
   return (
     <div ref={ref} className={styles.story} id={`${props.id}`}>
-      <Suspense fallback={<StoryPlaceholder />}>{content}</Suspense>
+      <ErrorBoundary fallback={<StoryError />}>
+        <Suspense fallback={<StoryPlaceholder />}>{content}</Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
@@ -109,6 +127,15 @@ function StoryContent(props: StoryContentProps) {
         </time>
       </div>
     </>
+  );
+}
+
+function StoryError() {
+  return (
+    <div className={styles.storyError}>
+      <CloudOff />
+      <span>Failed to fetch story</span>
+    </div>
   );
 }
 
