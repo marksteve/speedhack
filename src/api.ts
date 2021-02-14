@@ -19,27 +19,31 @@ type Item = Story;
 const apiHost = 'https://hacker-news.firebaseio.com/v0';
 const maxStories = 1500;
 
+async function apiFetch(url: string) {
+  const res = await fetch(`${apiHost}/${url}`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error);
+  }
+  return data;
+}
+
 export const item = createAsset<Item, [number]>(async (id) => {
-  const url = `${apiHost}/item/${id}.json`;
+  const url = `item/${id}.json`;
+
   let data: any = await localforage.getItem(url);
 
   if (data) {
     return data;
   }
 
-  const res = await fetch(url);
-  data = await res.json();
-
-  if (data.error) {
-    throw Error(data.error);
-  }
-
+  data = await apiFetch(url);
   localforage.setItem(url, data);
   return data;
 });
 
 export function useStories(endpoint: string) {
-  const url = `${apiHost}/${endpoint}.json`;
+  const url = `${endpoint}.json`;
 
   const [ids, setIds] = useState<Story['id'][]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -62,8 +66,7 @@ export function useStories(endpoint: string) {
 
     async function fetchStories() {
       try {
-        const res = await fetch(url);
-        const fetched = await res.json();
+        const fetched = await apiFetch(url);
         setIds(fetched);
         localforage.setItem(url, fetched);
       } catch (err) {
@@ -76,20 +79,24 @@ export function useStories(endpoint: string) {
     async function updateStories(cached: Story['id'][]) {
       const cachedSet = new Set<Story['id']>(cached);
 
-      const res = await fetch(url);
-      const updatedSet = new Set<Story['id']>(await res.json());
+      try {
+        const fetched = await apiFetch(url);
+        const updatedSet = new Set<Story['id']>(fetched);
 
-      let newCount = 0;
-      cachedSet.forEach((id) => {
-        const exists = updatedSet.size === updatedSet.add(id).size;
-        newCount += exists ? 0 : 1;
-      });
+        let newCount = 0;
+        cachedSet.forEach((id) => {
+          const exists = updatedSet.size === updatedSet.add(id).size;
+          newCount += exists ? 0 : 1;
+        });
 
-      if (newCount > 0) {
-        const updated = Array.from(updatedSet).slice(0, maxStories);
-        setIds(updated);
-        setIsLoading(false);
-        localforage.setItem(url, updated);
+        if (newCount > 0) {
+          const updated = Array.from(updatedSet).slice(0, maxStories);
+          setIds(updated);
+          localforage.setItem(url, updated);
+        }
+      } catch (err) {
+        // TODO: Show notif that user is in offline-mode
+        console.warn(err);
       }
     }
   }, [url, setIds]);
