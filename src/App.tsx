@@ -1,11 +1,5 @@
 import { formatDuration, intervalToDuration } from 'date-fns';
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import createStore from 'zustand';
 import * as api from './api';
 import styles from './App.module.css';
@@ -16,13 +10,7 @@ function App() {
       <header className={styles.header}>
         <h1>Hacker News</h1>
       </header>
-      <Suspense
-        fallback={
-          <div className={styles.info}>Fetching new stories&hellip;</div>
-        }
-      >
-        <Stories endpoint="newstories" />
-      </Suspense>
+      <Stories endpoint="newstories" />
     </div>
   );
 }
@@ -40,8 +28,7 @@ type StoriesProps = {
 };
 
 function Stories(props: StoriesProps) {
-  const [, setLatestId] = useState(0);
-  const stories = api.stories.read(props.endpoint);
+  const stories = api.useStories(props.endpoint);
 
   const markVisible = useVisible((state) => state.markVisible);
 
@@ -60,9 +47,9 @@ function Stories(props: StoriesProps) {
     );
   }, [markVisible]);
 
-  useEffect(() => {
-    api.updateStories(props.endpoint, stories, setLatestId);
-  }, [props.endpoint, stories, setLatestId]);
+  if (!stories.length) {
+    return <div className={styles.info}>Fetching new stories&hellip;</div>;
+  }
 
   return (
     <div className={styles.stories}>
