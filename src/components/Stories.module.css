@@ -1,0 +1,14 @@
+.stories {
+  padding: calc(var(--padding) / 2) 0;
+}
+
+.info {
+  height: 9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.info span {
+  margin-left: 0.5rem;
+}
