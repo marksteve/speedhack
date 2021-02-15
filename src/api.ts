@@ -19,7 +19,7 @@ type Item = Story;
 const apiHost = 'https://hacker-news.firebaseio.com/v0';
 const maxStories = 1500;
 
-async function apiFetch(url: string) {
+export async function apiFetch(url: string) {
   const res = await fetch(`${apiHost}/${url}`);
   const data = await res.json();
   if (!res.ok) {

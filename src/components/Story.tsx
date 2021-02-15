@@ -52,7 +52,7 @@ function StoryContent(props: StoryContentProps) {
       </h3>
       <div className={styles.storyMeta}>
         by {story.by}{' '}
-        <time dateTime={datetime.toISOString()}>
+        <time dateTime={datetime.toISOString()} data-testid="story-time">
           {formatDuration(datetime)}
         </time>
       </div>
@@ -76,6 +76,7 @@ function StoryPlaceholder() {
       height="2.5rem"
       fill="currentColor"
       opacity="0.5"
+      data-testid="story-placeholder"
     >
       <rect width={`${Math.random() * 20 + 80}%`} height="1rem" rx="3" />
       <rect
