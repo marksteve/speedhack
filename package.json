@@ -59,6 +59,8 @@
     ]
   },
   "devDependencies": {
-    "firebase-tools": "^9.3.0"
+    "@testing-library/react-hooks": "^5.0.3",
+    "firebase-tools": "^9.3.0",
+    "msw": "^0.26.2"
   }
 }

@@ -19,7 +19,7 @@ type Item = Story;
 const apiHost = 'https://hacker-news.firebaseio.com/v0';
 const maxStories = 1500;
 
-export async function apiFetch(url: string) {
+async function apiFetch(url: string) {
   const res = await fetch(`${apiHost}/${url}`);
   const data = await res.json();
   if (!res.ok) {
@@ -27,20 +27,6 @@ export async function apiFetch(url: string) {
   }
   return data;
 }
-
-export const item = createAsset<Item, [number]>(async (id) => {
-  const url = `item/${id}.json`;
-
-  let data: any = await localforage.getItem(url);
-
-  if (data) {
-    return data;
-  }
-
-  data = await apiFetch(url);
-  localforage.setItem(url, data);
-  return data;
-});
 
 export function useStories(endpoint: string) {
   const url = `${endpoint}.json`;
@@ -103,3 +89,14 @@ export function useStories(endpoint: string) {
 
   return [ids, isLoading, error] as const;
 }
+
+export const item = createAsset<Item, [number]>(async (id) => {
+  const url = `item/${id}.json`;
+  let data: any = await localforage.getItem(url);
+  if (data) {
+    return data;
+  }
+  data = await apiFetch(url);
+  localforage.setItem(url, data);
+  return data;
+});
