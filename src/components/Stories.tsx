@@ -48,10 +48,10 @@ export default function Stories(props: StoriesProps) {
   }
 
   return (
-    <div className={styles.stories}>
+    <ol className={styles.stories}>
       {stories.map((id) => (
         <Story key={id} id={id} observer={observer} />
       ))}
-    </div>
+    </ol>
   );
 }

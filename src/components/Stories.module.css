@@ -1,4 +1,5 @@
 .stories {
+  margin: 0;
   padding: calc(var(--padding) / 2) 0;
 }
 

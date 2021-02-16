@@ -12,7 +12,7 @@ type StoryProps = {
 };
 
 export default function Story(props: StoryProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLLIElement>(null);
   const isVisible = useVisible((state) => state[props.id]);
   const content = isVisible ? <StoryContent id={props.id} /> : null;
 
@@ -29,11 +29,11 @@ export default function Story(props: StoryProps) {
   }, [props.observer, ref]);
 
   return (
-    <div ref={ref} className={styles.story} id={`${props.id}`}>
+    <li ref={ref} className={styles.story} id={`${props.id}`}>
       <ErrorBoundary fallback={<StoryError />}>
         <Suspense fallback={<StoryPlaceholder />}>{content}</Suspense>
       </ErrorBoundary>
-    </div>
+    </li>
   );
 }
 
