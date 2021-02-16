@@ -2,7 +2,8 @@
 
 Fast and light Hacker News reader
 
-https://speedhack.web.app/
+- https://speedhack.web.app/
+- [Development journal](./journal.md)
 
 ## Develop
 
