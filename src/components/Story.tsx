@@ -63,7 +63,7 @@ function StoryContent(props: StoryContentProps) {
 function StoryError() {
   return (
     <div className={styles.storyError}>
-      <CloudOff />
+      <CloudOff size="1em" />
       <span>Failed to fetch story</span>
     </div>
   );
